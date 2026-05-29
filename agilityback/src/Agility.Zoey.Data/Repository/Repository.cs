@@ -5,7 +5,7 @@ using SqlSugar;
 
 namespace Agility.Zoey.Data.Repository;
 
-public class Repository<T> : IRepository<T> where T : class, new()
+public class Repository<T> : IRepository<T>, IScoped where T : class, new()
 {
     private readonly SqlSugarScope _client;
     private readonly ICurrentUserAccessor? _currentUserAccessor;

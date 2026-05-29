@@ -1,6 +1,4 @@
 using Agility.Zoey.Data.DbContext;
-using Agility.Zoey.Data.Repository;
-using Agility.Zoey.Data.SeedData;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SqlSugar;
@@ -15,10 +13,6 @@ public static class ServiceCollectionExtensions
         {
             return SqlSugarDbContext.CreateClient(sp, configuration);
         });
-
-        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-
-        services.AddSingleton<SeedDataInitializer>();
 
         return services;
     }
