@@ -49,6 +49,7 @@ export default defineConfig({
     cssCodeSplit: true,
     assetsInlineLimit: 4096,
     minify: 'esbuild',
+    chunkSizeWarningLimit: 3000,
     rollupOptions: {
       output: {
         chunkFileNames: 'assets/js/[name]-[hash].js',

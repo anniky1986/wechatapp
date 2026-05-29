@@ -182,6 +182,16 @@ public class UserService : IDynamicApiController, ITransient
             throw Oops.Oh("用户名已存在");
         }
 
+        if (!string.IsNullOrEmpty(input.Email))
+        {
+            var emailExists = await _userRepo.AsQueryable()
+                .AnyAsync(u => u.Email == input.Email && u.TenantId == tenantId && !u.IsDeleted);
+            if (emailExists)
+            {
+                throw Oops.Oh("邮箱已存在");
+            }
+        }
+
         var currentUserId = GetCurrentUserId();
         var user = new User
         {
@@ -197,16 +207,28 @@ public class UserService : IDynamicApiController, ITransient
             CreateUserId = currentUserId
         };
 
-        user = await _userRepo.InsertAsync(user);
-
-        if (input.RoleIds.Any())
+        try
         {
-            var userRoles = input.RoleIds.Select(roleId => new UserRole
+            await _userRepo.BeginTranAsync();
+
+            user = await _userRepo.InsertAsync(user);
+
+            if (input.RoleIds.Any())
             {
-                UserId = user.Id,
-                RoleId = roleId
-            }).ToList();
-            await _userRepo.Context.Insertable(userRoles).ExecuteCommandAsync();
+                var userRoles = input.RoleIds.Select(roleId => new UserRole
+                {
+                    UserId = user.Id,
+                    RoleId = roleId
+                }).ToList();
+                await _userRepo.Context.Insertable(userRoles).ExecuteCommandAsync();
+            }
+
+            await _userRepo.CommitTranAsync();
+        }
+        catch
+        {
+            await _userRepo.RollbackTranAsync();
+            throw;
         }
 
         return await Get(user.Id);
@@ -226,6 +248,16 @@ public class UserService : IDynamicApiController, ITransient
         var exists = await _userRepo.AsQueryable()
             .AnyAsync(u => u.UserName == user.UserName && u.Id != id && u.TenantId == tenantId && !u.IsDeleted);
 
+        if (!string.IsNullOrEmpty(input.Email))
+        {
+            var emailExists = await _userRepo.AsQueryable()
+                .AnyAsync(u => u.Email == input.Email && u.Id != id && u.TenantId == tenantId && !u.IsDeleted);
+            if (emailExists)
+            {
+                throw Oops.Oh("邮箱已存在");
+            }
+        }
+
         user.NickName = input.NickName;
         user.Email = input.Email;
         user.Phone = input.Phone;
@@ -234,17 +266,29 @@ public class UserService : IDynamicApiController, ITransient
         user.UpdateTime = DateTime.Now;
         user.UpdateUserId = GetCurrentUserId();
 
-        await _userRepo.UpdateAsync(user);
-
-        await _userRepo.Context.Deleteable<UserRole>().Where(ur => ur.UserId == id).ExecuteCommandAsync();
-        if (input.RoleIds.Any())
+        try
         {
-            var userRoles = input.RoleIds.Select(roleId => new UserRole
+            await _userRepo.BeginTranAsync();
+
+            await _userRepo.UpdateAsync(user);
+
+            await _userRepo.Context.Deleteable<UserRole>().Where(ur => ur.UserId == id).ExecuteCommandAsync();
+            if (input.RoleIds.Any())
             {
-                UserId = id,
-                RoleId = roleId
-            }).ToList();
-            await _userRepo.Context.Insertable(userRoles).ExecuteCommandAsync();
+                var userRoles = input.RoleIds.Select(roleId => new UserRole
+                {
+                    UserId = id,
+                    RoleId = roleId
+                }).ToList();
+                await _userRepo.Context.Insertable(userRoles).ExecuteCommandAsync();
+            }
+
+            await _userRepo.CommitTranAsync();
+        }
+        catch
+        {
+            await _userRepo.RollbackTranAsync();
+            throw;
         }
 
         return await Get(id);
@@ -265,8 +309,20 @@ public class UserService : IDynamicApiController, ITransient
             throw Oops.Oh("不能删除超级管理员");
         }
 
-        await _userRepo.SoftDeleteAsync(id);
-        await _userRepo.Context.Deleteable<UserRole>().Where(ur => ur.UserId == id).ExecuteCommandAsync();
+        try
+        {
+            await _userRepo.BeginTranAsync();
+
+            await _userRepo.SoftDeleteAsync(id);
+            await _userRepo.Context.Deleteable<UserRole>().Where(ur => ur.UserId == id).ExecuteCommandAsync();
+
+            await _userRepo.CommitTranAsync();
+        }
+        catch
+        {
+            await _userRepo.RollbackTranAsync();
+            throw;
+        }
     }
 
     [HttpPut("api/user/{id}/status")]

@@ -5,6 +5,8 @@ using SqlSugar;
 namespace Agility.Zoey.Core.Entities;
 
 [SugarTable("Sys_User")]
+[SugarIndex("unique_tenant_username", nameof(TenantId), OrderByType.Asc, nameof(UserName), OrderByType.Asc, true)]
+[SugarIndex("unique_tenant_email", nameof(TenantId), OrderByType.Asc, nameof(Email), OrderByType.Asc, true)]
 public class User : BaseEntity, ISoftDelete, ITenant
 {
     [Required]

@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Agility.Zoey.Core.Entities;
 using Agility.Zoey.Data.Repository;
 using Agility.Zoey.Web.Core.Modules.System.Dto;
@@ -5,6 +6,7 @@ using Agility.Zoey.Web.Core.Shared.Attributes;
 using Agility.Zoey.Web.Core.Shared.Consts;
 using Furion.DynamicApiController;
 using Furion.FriendlyException;
+using Microsoft.AspNetCore.Http;
 using SqlSugar;
 
 namespace Agility.Zoey.Web.Core.Modules.System.Services;
@@ -14,11 +16,13 @@ public class DictService : IDynamicApiController, ITransient
 {
     private readonly IRepository<Dict> _dictRepo;
     private readonly IRepository<DictItem> _dictItemRepo;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public DictService(IRepository<Dict> dictRepo, IRepository<DictItem> dictItemRepo)
+    public DictService(IRepository<Dict> dictRepo, IRepository<DictItem> dictItemRepo, IHttpContextAccessor httpContextAccessor)
     {
         _dictRepo = dictRepo;
         _dictItemRepo = dictItemRepo;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     [HttpGet("api/dict/page")]
@@ -86,8 +90,9 @@ public class DictService : IDynamicApiController, ITransient
     [Permission(PermissionConsts.DictAdd)]
     public async Task<DictOutput> Add(AddDictInput input)
     {
+        var tenantId = GetCurrentTenantId();
         var exists = await _dictRepo.AsQueryable()
-            .AnyAsync(d => d.Code == input.Code);
+            .AnyAsync(d => d.Code == input.Code && d.TenantId == tenantId);
         if (exists)
         {
             throw Oops.Oh("字典编码已存在");
@@ -98,7 +103,7 @@ public class DictService : IDynamicApiController, ITransient
             Name = input.Name,
             Code = input.Code,
             Remark = input.Remark,
-            TenantId = 0,
+            TenantId = tenantId,
             CreateTime = DateTime.Now,
             CreateUserId = 0
         };
@@ -259,5 +264,11 @@ public class DictService : IDynamicApiController, ITransient
         }
 
         await _dictItemRepo.DeleteAsync(id);
+    }
+
+    private long GetCurrentTenantId()
+    {
+        var claim = _httpContextAccessor.HttpContext?.User.FindFirst("TenantId")?.Value;
+        return claim != null && long.TryParse(claim, out var id) ? id : 0;
     }
 }

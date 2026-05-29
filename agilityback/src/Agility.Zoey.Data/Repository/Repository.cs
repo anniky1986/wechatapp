@@ -108,4 +108,22 @@ public class Repository<T> : IRepository<T>, IScoped where T : class, new()
     {
         return AsQueryable();
     }
+
+    public Task BeginTranAsync()
+    {
+        _client.Ado.BeginTran();
+        return Task.CompletedTask;
+    }
+
+    public Task CommitTranAsync()
+    {
+        _client.Ado.CommitTran();
+        return Task.CompletedTask;
+    }
+
+    public Task RollbackTranAsync()
+    {
+        _client.Ado.RollbackTran();
+        return Task.CompletedTask;
+    }
 }

@@ -4,6 +4,7 @@ using SqlSugar;
 namespace Agility.Zoey.Core.Entities;
 
 [SugarTable("Sys_Tenant")]
+[SugarIndex("unique_code", nameof(Code), OrderByType.Asc, true)]
 public class Tenant : BaseEntity
 {
     [Required]

@@ -156,9 +156,21 @@ public class MenuService : IDynamicApiController, ITransient
             throw Oops.Oh("存在子菜单，请先删除子菜单");
         }
 
-        menu.IsObsolete = true;
-        menu.UpdateTime = DateTime.Now;
-        await _menuRepo.UpdateAsync(menu);
+        try
+        {
+            await _menuRepo.BeginTranAsync();
+
+            menu.IsObsolete = true;
+            menu.UpdateTime = DateTime.Now;
+            await _menuRepo.UpdateAsync(menu);
+
+            await _menuRepo.CommitTranAsync();
+        }
+        catch
+        {
+            await _menuRepo.RollbackTranAsync();
+            throw;
+        }
     }
 
     [HttpPut("api/menu/{id}/status")]

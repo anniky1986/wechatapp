@@ -5,6 +5,7 @@ using SqlSugar;
 namespace Agility.Zoey.Core.Entities;
 
 [SugarTable("Sys_Role")]
+[SugarIndex("unique_tenant_code", nameof(TenantId), OrderByType.Asc, nameof(Code), OrderByType.Asc, true)]
 public class Role : BaseEntity, ITenant
 {
     [Required]

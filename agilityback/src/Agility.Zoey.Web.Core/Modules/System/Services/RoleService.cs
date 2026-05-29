@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Agility.Zoey.Core.Entities;
 using Agility.Zoey.Data.Repository;
 using Agility.Zoey.Web.Core.Modules.System.Dto;
@@ -5,6 +6,7 @@ using Agility.Zoey.Web.Core.Shared.Attributes;
 using Agility.Zoey.Web.Core.Shared.Consts;
 using Furion.DynamicApiController;
 using Furion.FriendlyException;
+using Microsoft.AspNetCore.Http;
 
 namespace Agility.Zoey.Web.Core.Modules.System.Services;
 
@@ -15,17 +17,20 @@ public class RoleService : IDynamicApiController, ITransient
     private readonly IRepository<RoleMenu> _roleMenuRepo;
     private readonly IRepository<DataPermission> _dataPermissionRepo;
     private readonly IRepository<Menu> _menuRepo;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public RoleService(
         IRepository<Role> roleRepo,
         IRepository<RoleMenu> roleMenuRepo,
         IRepository<DataPermission> dataPermissionRepo,
-        IRepository<Menu> menuRepo)
+        IRepository<Menu> menuRepo,
+        IHttpContextAccessor httpContextAccessor)
     {
         _roleRepo = roleRepo;
         _roleMenuRepo = roleMenuRepo;
         _dataPermissionRepo = dataPermissionRepo;
         _menuRepo = menuRepo;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     [HttpGet("api/role/page")]
@@ -149,8 +154,9 @@ public class RoleService : IDynamicApiController, ITransient
     [Permission(PermissionConsts.RoleAdd)]
     public async Task<RoleOutput> Add(AddRoleInput input)
     {
+        var tenantId = GetCurrentTenantId();
         var exists = await _roleRepo.AsQueryable()
-            .AnyAsync(r => r.Code == input.Code);
+            .AnyAsync(r => r.Code == input.Code && r.TenantId == tenantId);
         if (exists)
         {
             throw Oops.Oh("角色编码已存在");
@@ -164,7 +170,7 @@ public class RoleService : IDynamicApiController, ITransient
             Status = input.Status,
             DataScope = input.DataScope,
             Remark = input.Remark,
-            TenantId = 0,
+            TenantId = tenantId,
             CreateTime = DateTime.Now,
             CreateUserId = 0
         };
@@ -231,9 +237,19 @@ public class RoleService : IDynamicApiController, ITransient
             throw Oops.Oh("不能删除超级管理员角色");
         }
 
-        await _roleRepo.Context.Deleteable<Role>().Where(r => r.Id == id).ExecuteCommandAsync();
-        await _roleRepo.Context.Deleteable<RoleMenu>().Where(rm => rm.RoleId == id).ExecuteCommandAsync();
-        await _roleRepo.Context.Deleteable<DataPermission>().Where(dp => dp.RoleId == id).ExecuteCommandAsync();
+        try
+        {
+            await _roleRepo.BeginTranAsync();
+            await _roleRepo.Context.Deleteable<Role>().Where(r => r.Id == id).ExecuteCommandAsync();
+            await _roleRepo.Context.Deleteable<RoleMenu>().Where(rm => rm.RoleId == id).ExecuteCommandAsync();
+            await _roleRepo.Context.Deleteable<DataPermission>().Where(dp => dp.RoleId == id).ExecuteCommandAsync();
+            await _roleRepo.CommitTranAsync();
+        }
+        catch
+        {
+            await _roleRepo.RollbackTranAsync();
+            throw;
+        }
     }
 
     [HttpPut("api/role/{id}/status")]
@@ -266,10 +282,20 @@ public class RoleService : IDynamicApiController, ITransient
             throw Oops.Oh("角色不存在");
         }
 
-        await _roleRepo.Context.Deleteable<RoleMenu>().Where(rm => rm.RoleId == id).ExecuteCommandAsync();
-        if (menuIds.Any())
+        try
         {
-            await AssignRoleMenus(id, menuIds);
+            await _roleRepo.BeginTranAsync();
+            await _roleRepo.Context.Deleteable<RoleMenu>().Where(rm => rm.RoleId == id).ExecuteCommandAsync();
+            if (menuIds.Any())
+            {
+                await AssignRoleMenus(id, menuIds);
+            }
+            await _roleRepo.CommitTranAsync();
+        }
+        catch
+        {
+            await _roleRepo.RollbackTranAsync();
+            throw;
         }
     }
 
@@ -283,18 +309,28 @@ public class RoleService : IDynamicApiController, ITransient
             throw Oops.Oh("角色不存在");
         }
 
-        await _roleRepo.Context.Deleteable<DataPermission>().Where(dp => dp.RoleId == id).ExecuteCommandAsync();
-        if (input.DeptIds.Any())
+        try
         {
-            var permissions = input.DeptIds.Select(deptId => new DataPermission
+            await _roleRepo.BeginTranAsync();
+            await _roleRepo.Context.Deleteable<DataPermission>().Where(dp => dp.RoleId == id).ExecuteCommandAsync();
+            if (input.DeptIds.Any())
             {
-                RoleId = id,
-                DeptId = deptId,
-                TenantId = role.TenantId,
-                CreateTime = DateTime.Now,
-                CreateUserId = 0
-            }).ToList();
-            await _roleRepo.Context.Insertable(permissions).ExecuteCommandAsync();
+                var permissions = input.DeptIds.Select(deptId => new DataPermission
+                {
+                    RoleId = id,
+                    DeptId = deptId,
+                    TenantId = role.TenantId,
+                    CreateTime = DateTime.Now,
+                    CreateUserId = 0
+                }).ToList();
+                await _roleRepo.Context.Insertable(permissions).ExecuteCommandAsync();
+            }
+            await _roleRepo.CommitTranAsync();
+        }
+        catch
+        {
+            await _roleRepo.RollbackTranAsync();
+            throw;
         }
     }
 
@@ -306,5 +342,11 @@ public class RoleService : IDynamicApiController, ITransient
             MenuId = menuId
         }).ToList();
         await _roleRepo.Context.Insertable(roleMenus).ExecuteCommandAsync();
+    }
+
+    private long GetCurrentTenantId()
+    {
+        var claim = _httpContextAccessor.HttpContext?.User.FindFirst("TenantId")?.Value;
+        return claim != null && long.TryParse(claim, out var id) ? id : 0;
     }
 }

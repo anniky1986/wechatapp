@@ -5,6 +5,7 @@ using SqlSugar;
 namespace Agility.Zoey.Core.Entities;
 
 [SugarTable("Sys_SystemSetting")]
+[SugarIndex("unique_tenant_configkey", nameof(TenantId), OrderByType.Asc, nameof(ConfigKey), OrderByType.Asc, true)]
 public class SystemSetting : BaseEntity, ITenant
 {
     public long TenantId { get; set; }

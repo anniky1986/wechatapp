@@ -5,6 +5,7 @@ using SqlSugar;
 namespace Agility.Zoey.Core.Entities;
 
 [SugarTable("Sys_Dict")]
+[SugarIndex("unique_tenant_code", nameof(TenantId), OrderByType.Asc, nameof(Code), OrderByType.Asc, true)]
 public class Dict : BaseEntity, ITenant
 {
     [Required]

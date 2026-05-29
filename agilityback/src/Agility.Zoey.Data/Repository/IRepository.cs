@@ -36,4 +36,10 @@ public interface IRepository<T> where T : class, new()
     ISugarQueryable<T> AsSugarQueryable();
 
     SqlSugarClient Context { get; }
+
+    Task BeginTranAsync();
+
+    Task CommitTranAsync();
+
+    Task RollbackTranAsync();
 }
