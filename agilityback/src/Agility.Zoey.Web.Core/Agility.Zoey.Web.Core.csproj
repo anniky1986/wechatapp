@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Agility.Zoey.Web.Core</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Agility.Zoey.Data\Agility.Zoey.Data.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Furion" Version="4.9.7" />
+    <PackageReference Include="FluentValidation" Version="11.11.0" />
+    <PackageReference Include="Mapster" Version="7.4.0" />
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+    <PackageReference Include="Aliyun.OSS.SDK.NetCore" Version="2.13.0" />
+    <PackageReference Include="Tencent.QCloud.Cos.Sdk" Version="5.4.35" />
+  </ItemGroup>
+
+</Project>

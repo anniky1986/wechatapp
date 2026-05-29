@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Agility.Zoey.Web.Entry</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Agility.Zoey.Web.Core\Agility.Zoey.Web.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Furion" Version="4.9.7" />
+    <PackageReference Include="Furion.Extras.Authentication.JwtBearer" Version="4.9.7" />
+    <PackageReference Include="Furion.Extras.ObjectMapper.Mapster" Version="4.9.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.0" />
+  </ItemGroup>
+
+</Project>
