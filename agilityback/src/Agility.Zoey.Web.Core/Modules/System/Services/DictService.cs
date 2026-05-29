@@ -1,6 +1,7 @@
 using Agility.Zoey.Core.Entities;
 using Agility.Zoey.Data.Repository;
 using Agility.Zoey.Web.Core.Modules.System.Dto;
+using Agility.Zoey.Web.Core.Shared.Attributes;
 using Agility.Zoey.Web.Core.Shared.Consts;
 using Furion.DynamicApiController;
 using Furion.FriendlyException;
@@ -21,6 +22,7 @@ public class DictService : IDynamicApiController, ITransient
     }
 
     [HttpGet("api/dict/page")]
+    [Permission(PermissionConsts.DictView)]
     public async Task<PageResult<DictOutput>> GetPage(DictPageInput input)
     {
         var query = _dictRepo.AsQueryable();
@@ -61,6 +63,7 @@ public class DictService : IDynamicApiController, ITransient
     }
 
     [HttpGet("api/dict/{id}")]
+    [Permission(PermissionConsts.DictView)]
     public async Task<DictOutput> Get(long id)
     {
         var dict = await _dictRepo.GetByIdAsync(id);
@@ -80,6 +83,7 @@ public class DictService : IDynamicApiController, ITransient
     }
 
     [HttpPost("api/dict")]
+    [Permission(PermissionConsts.DictAdd)]
     public async Task<DictOutput> Add(AddDictInput input)
     {
         var exists = await _dictRepo.AsQueryable()
@@ -104,6 +108,7 @@ public class DictService : IDynamicApiController, ITransient
     }
 
     [HttpPut("api/dict/{id}")]
+    [Permission(PermissionConsts.DictEdit)]
     public async Task<DictOutput> Update(long id, UpdateDictInput input)
     {
         var dict = await _dictRepo.GetByIdAsync(id);
@@ -130,6 +135,7 @@ public class DictService : IDynamicApiController, ITransient
     }
 
     [HttpDelete("api/dict/{id}")]
+    [Permission(PermissionConsts.DictDelete)]
     public async Task Delete(long id)
     {
         var dict = await _dictRepo.GetByIdAsync(id);
@@ -143,6 +149,7 @@ public class DictService : IDynamicApiController, ITransient
     }
 
     [HttpGet("api/dict/{code}/items")]
+    [Permission(PermissionConsts.DictItemView)]
     public async Task<List<DictItemOutput>> GetDictItems(string code)
     {
         var dict = await _dictRepo.AsQueryable()
@@ -172,6 +179,7 @@ public class DictService : IDynamicApiController, ITransient
     }
 
     [HttpPost("api/dict-item")]
+    [Permission(PermissionConsts.DictItemAdd)]
     public async Task<DictItemOutput> AddDictItem(AddDictItemInput input)
     {
         var dict = await _dictRepo.GetByIdAsync(input.DictId);
@@ -208,6 +216,7 @@ public class DictService : IDynamicApiController, ITransient
     }
 
     [HttpPut("api/dict-item/{id}")]
+    [Permission(PermissionConsts.DictItemEdit)]
     public async Task<DictItemOutput> UpdateDictItem(long id, UpdateDictItemInput input)
     {
         var item = await _dictItemRepo.GetByIdAsync(id);
@@ -240,6 +249,7 @@ public class DictService : IDynamicApiController, ITransient
     }
 
     [HttpDelete("api/dict-item/{id}")]
+    [Permission(PermissionConsts.DictItemDelete)]
     public async Task DeleteDictItem(long id)
     {
         var item = await _dictItemRepo.GetByIdAsync(id);

@@ -1,9 +1,20 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useAppStore } from '../store/modules/app'
 import Sidebar from './components/Sidebar.vue'
 import HeaderBar from './components/Header.vue'
+import SkeletonLoader from '../components/common/SkeletonLoader.vue'
 
 const appStore = useAppStore()
+const route = useRoute()
+const router = useRouter()
+
+const cachedViews = computed(() => {
+  return router.getRoutes()
+    .filter(r => r.meta?.keepAlive === true && r.name)
+    .map(r => r.name as string)
+})
 </script>
 
 <template>
@@ -27,7 +38,16 @@ const appStore = useAppStore()
         <HeaderBar />
       </a-layout-header>
       <a-layout-content class="layout-content">
-        <router-view />
+        <router-view v-slot="{ Component, route: currentRoute }">
+          <Suspense>
+            <keep-alive :include="cachedViews" :max="10">
+              <component :is="Component" :key="currentRoute.path" />
+            </keep-alive>
+            <template #fallback>
+              <SkeletonLoader type="table" :rows="5" />
+            </template>
+          </Suspense>
+        </router-view>
       </a-layout-content>
     </a-layout>
   </a-layout>

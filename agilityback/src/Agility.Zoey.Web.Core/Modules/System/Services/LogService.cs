@@ -2,6 +2,7 @@ using System.Text;
 using Agility.Zoey.Core.Entities;
 using Agility.Zoey.Data.Repository;
 using Agility.Zoey.Web.Core.Modules.System.Dto;
+using Agility.Zoey.Web.Core.Shared.Attributes;
 using Agility.Zoey.Web.Core.Shared.Consts;
 using Furion.DynamicApiController;
 using SqlSugar;
@@ -23,6 +24,7 @@ public class LogService : IDynamicApiController, ITransient
     }
 
     [HttpGet("api/log/operation/page")]
+    [Permission(PermissionConsts.LogView)]
     public async Task<PageResult<OperationLogOutput>> GetOperationLogPage(LogPageInput input)
     {
         var query = _operationLogRepo.AsQueryable();
@@ -80,6 +82,7 @@ public class LogService : IDynamicApiController, ITransient
     }
 
     [HttpGet("api/log/login/page")]
+    [Permission(PermissionConsts.LogView)]
     public async Task<PageResult<LoginLogOutput>> GetLoginLogPage(LogPageInput input)
     {
         var query = _loginLogRepo.AsQueryable();
@@ -134,6 +137,7 @@ public class LogService : IDynamicApiController, ITransient
     }
 
     [HttpGet("api/log/operation/export")]
+    [Permission(PermissionConsts.LogExport)]
     public async Task<IActionResult> ExportOperationLog(LogPageInput input)
     {
         input.Page = 1;
@@ -148,6 +152,7 @@ public class LogService : IDynamicApiController, ITransient
     }
 
     [HttpGet("api/log/login/export")]
+    [Permission(PermissionConsts.LogExport)]
     public async Task<IActionResult> ExportLoginLog(LogPageInput input)
     {
         input.Page = 1;

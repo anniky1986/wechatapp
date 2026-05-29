@@ -2,6 +2,8 @@ using System.Security.Claims;
 using Agility.Zoey.Core.Entities;
 using Agility.Zoey.Data.Repository;
 using Agility.Zoey.Web.Core.Modules.FileManager.Dto;
+using Agility.Zoey.Web.Core.Shared.Attributes;
+using Agility.Zoey.Web.Core.Shared.Consts;
 using Furion.DynamicApiController;
 using Furion.FriendlyException;
 using Microsoft.AspNetCore.Http;
@@ -23,6 +25,7 @@ public class FileFolderService : IDynamicApiController, ITransient
     }
 
     [HttpGet("api/file-folder/tree")]
+    [Permission(PermissionConsts.FileView)]
     public async Task<List<FileFolderTreeOutput>> GetTree()
     {
         var tenantId = GetCurrentTenantId();
@@ -35,6 +38,7 @@ public class FileFolderService : IDynamicApiController, ITransient
     }
 
     [HttpPost("api/file-folder")]
+    [Permission(PermissionConsts.FileFolderAdd)]
     public async Task<FileFolderOutput> Add(AddFileFolderInput input)
     {
         var tenantId = GetCurrentTenantId();
@@ -67,6 +71,7 @@ public class FileFolderService : IDynamicApiController, ITransient
     }
 
     [HttpPut("api/file-folder/{id}")]
+    [Permission(PermissionConsts.FileFolderEdit)]
     public async Task<FileFolderOutput> Update(long id, UpdateFileFolderInput input)
     {
         var folder = await _folderRepo.GetByIdAsync(id);
@@ -103,6 +108,7 @@ public class FileFolderService : IDynamicApiController, ITransient
     }
 
     [HttpDelete("api/file-folder/{id}")]
+    [Permission(PermissionConsts.FileFolderDelete)]
     public async Task Delete(long id)
     {
         var folder = await _folderRepo.GetByIdAsync(id);

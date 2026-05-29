@@ -22,7 +22,9 @@ public static class SqlSugarDbContext
         typeof(OperationLog),
         typeof(DataPermission),
         typeof(UserRole),
-        typeof(RoleMenu)
+        typeof(RoleMenu),
+        typeof(Article),
+        typeof(WorkflowDefinition)
     ];
 
     public static SqlSugarScope CreateClient(IServiceProvider serviceProvider, IConfiguration configuration)

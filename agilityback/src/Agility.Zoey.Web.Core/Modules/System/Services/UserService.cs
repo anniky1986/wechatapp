@@ -10,6 +10,7 @@ using Furion.FriendlyException;
 using Mapster;
 using Microsoft.AspNetCore.Http;
 using SqlSugar;
+using Agility.Zoey.Web.Core.Shared.Attributes;
 
 namespace Agility.Zoey.Web.Core.Modules.System.Services;
 
@@ -37,6 +38,7 @@ public class UserService : IDynamicApiController, ITransient
     }
 
     [HttpGet("api/user/page")]
+    [Permission(PermissionConsts.UserView)]
     public async Task<PageResult<UserOutput>> GetPage(UserPageInput input)
     {
         var tenantId = GetCurrentTenantId();
@@ -130,6 +132,7 @@ public class UserService : IDynamicApiController, ITransient
     }
 
     [HttpGet("api/user/{id}")]
+    [Permission(PermissionConsts.UserView)]
     public async Task<UserOutput> Get(long id)
     {
         var user = await _userRepo.GetByIdAsync(id);
@@ -168,6 +171,7 @@ public class UserService : IDynamicApiController, ITransient
     }
 
     [HttpPost("api/user")]
+    [Permission(PermissionConsts.UserAdd)]
     public async Task<UserOutput> Add(AddUserInput input)
     {
         var tenantId = GetCurrentTenantId();
@@ -209,6 +213,7 @@ public class UserService : IDynamicApiController, ITransient
     }
 
     [HttpPut("api/user/{id}")]
+    [Permission(PermissionConsts.UserEdit)]
     public async Task<UserOutput> Update(long id, UpdateUserInput input)
     {
         var user = await _userRepo.GetByIdAsync(id);
@@ -246,6 +251,7 @@ public class UserService : IDynamicApiController, ITransient
     }
 
     [HttpDelete("api/user/{id}")]
+    [Permission(PermissionConsts.UserDelete)]
     public async Task Delete(long id)
     {
         var user = await _userRepo.GetByIdAsync(id);
@@ -264,6 +270,7 @@ public class UserService : IDynamicApiController, ITransient
     }
 
     [HttpPut("api/user/{id}/status")]
+    [Permission(PermissionConsts.UserSetStatus)]
     public async Task SetStatus(long id, int status)
     {
         var user = await _userRepo.GetByIdAsync(id);
@@ -284,6 +291,7 @@ public class UserService : IDynamicApiController, ITransient
     }
 
     [HttpPut("api/user/{id}/reset-password")]
+    [Permission(PermissionConsts.UserResetPassword)]
     public async Task ResetPassword(long id, string password)
     {
         var user = await _userRepo.GetByIdAsync(id);
@@ -299,6 +307,7 @@ public class UserService : IDynamicApiController, ITransient
     }
 
     [HttpPost("api/user/export")]
+    [Permission(PermissionConsts.UserExport)]
     public async Task<IActionResult> Export(UserPageInput input)
     {
         var pageResult = await GetPage(input);

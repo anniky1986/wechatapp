@@ -1,6 +1,8 @@
 using Agility.Zoey.Core.Entities;
 using Agility.Zoey.Data.Repository;
 using Agility.Zoey.Web.Core.Modules.System.Dto;
+using Agility.Zoey.Web.Core.Shared.Attributes;
+using Agility.Zoey.Web.Core.Shared.Consts;
 using Furion.DynamicApiController;
 using Furion.FriendlyException;
 
@@ -17,6 +19,7 @@ public class DeptService : IDynamicApiController, ITransient
     }
 
     [HttpGet("api/dept/tree")]
+    [Permission(PermissionConsts.DeptView)]
     public async Task<List<DeptTreeOutput>> GetTree()
     {
         var depts = await _deptRepo.AsQueryable()
@@ -27,6 +30,7 @@ public class DeptService : IDynamicApiController, ITransient
     }
 
     [HttpGet("api/dept/list")]
+    [Permission(PermissionConsts.DeptView)]
     public async Task<List<DeptOutput>> GetList()
     {
         var depts = await _deptRepo.AsQueryable()
@@ -48,6 +52,7 @@ public class DeptService : IDynamicApiController, ITransient
     }
 
     [HttpGet("api/dept/{id}")]
+    [Permission(PermissionConsts.DeptView)]
     public async Task<DeptOutput> Get(long id)
     {
         var dept = await _deptRepo.GetByIdAsync(id);
@@ -70,6 +75,7 @@ public class DeptService : IDynamicApiController, ITransient
     }
 
     [HttpPost("api/dept")]
+    [Permission(PermissionConsts.DeptAdd)]
     public async Task<DeptOutput> Add(AddDeptInput input)
     {
         var dept = new Dept
@@ -90,6 +96,7 @@ public class DeptService : IDynamicApiController, ITransient
     }
 
     [HttpPut("api/dept/{id}")]
+    [Permission(PermissionConsts.DeptEdit)]
     public async Task<DeptOutput> Update(long id, UpdateDeptInput input)
     {
         var dept = await _deptRepo.GetByIdAsync(id);
@@ -117,6 +124,7 @@ public class DeptService : IDynamicApiController, ITransient
     }
 
     [HttpDelete("api/dept/{id}")]
+    [Permission(PermissionConsts.DeptDelete)]
     public async Task Delete(long id)
     {
         var dept = await _deptRepo.GetByIdAsync(id);

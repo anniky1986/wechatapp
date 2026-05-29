@@ -1,4 +1,6 @@
+using Agility.Zoey.Web.Core.Filters;
 using Agility.Zoey.Web.Core.Modules.FileManager.Services.StorageProviders;
+using Agility.Zoey.Web.Core.Shared.Services;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,6 +15,9 @@ public static class ServiceCollectionExtensions
         services.AddTransient<TencentCOSProvider>();
 
         services.AddValidatorsFromAssemblyContaining<Agility.Zoey.Web.Core.Modules.System.Validators.AddUserInputValidator>();
+
+        services.AddScoped<CacheService>();
+        services.AddScoped<PermissionFilter>();
 
         return services;
     }

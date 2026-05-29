@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, onMounted, nextTick, watch } from 'vue'
+import { reactive, ref, shallowRef, onMounted, nextTick, watch } from 'vue'
 import { message } from 'ant-design-vue'
 import type { Rule } from 'ant-design-vue/es/form'
 import type { TableColumnsType } from 'ant-design-vue'
@@ -33,7 +33,7 @@ const canDelete = userStore.hasPermission?.('system:menu:delete') ?? true
 const canSync = userStore.hasPermission?.('system:menu:sync') ?? true
 
 const menuTreeData = ref<MenuItem[]>([])
-const tableLoading = ref(false)
+const tableLoading = shallowRef(false)
 const expandedRowKeys = ref<number[]>([])
 const allExpanded = ref(false)
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, onMounted, nextTick } from 'vue'
+import { reactive, ref, shallowRef, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
 import type { Rule } from 'ant-design-vue/es/form'
 import type { TableColumnsType } from 'ant-design-vue'
@@ -26,7 +26,7 @@ const canEdit = userStore.hasPermission?.('system:dept:edit') ?? true
 const canDelete = userStore.hasPermission?.('system:dept:delete') ?? true
 
 const tableData = ref<DeptRecord[]>([])
-const tableLoading = ref(false)
+const tableLoading = shallowRef(false)
 const expandedRowKeys = ref<number[]>([])
 const allExpanded = ref(false)
 

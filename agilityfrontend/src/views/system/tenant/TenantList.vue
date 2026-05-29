@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, onMounted, watch } from 'vue'
+import { reactive, ref, shallowRef, onMounted, watch } from 'vue'
 import { message } from 'ant-design-vue'
 import type { Rule } from 'ant-design-vue/es/form'
 import type { TableColumnsType } from 'ant-design-vue'
@@ -9,6 +9,7 @@ import {
   DeleteOutlined,
 } from '@ant-design/icons-vue'
 import dayjs from 'dayjs'
+import { useDebounceFn } from '@vueuse/core'
 import { useUserStore } from '../../../store/modules/user'
 import type { PageResult } from '../../../types'
 import type { TenantRecord, TenantQuery } from '../../../api/system/tenant'
@@ -69,7 +70,7 @@ const pagination = reactive({
 })
 
 const tableData = ref<TenantRow[]>([])
-const tableLoading = ref(false)
+const tableLoading = shallowRef(false)
 
 const columns: TableColumnsType = [
   { title: '租户名称', dataIndex: 'name', key: 'name', width: 160 },
@@ -107,6 +108,8 @@ function handleSearch() {
   pagination.current = 1
   fetchData()
 }
+
+const debouncedSearch = useDebounceFn(handleSearch, 300)
 
 function handleReset() {
   searchForm.name = ''
@@ -269,7 +272,7 @@ onMounted(() => {
 
 <template>
   <div class="tenant-list">
-    <a-card class="search-card" :bordered="false">
+    <a-card v-memo="[searchForm.name, searchForm.code, searchForm.tenantType, searchForm.status]" class="search-card" :bordered="false">
       <a-form layout="inline" :model="searchForm">
         <a-form-item label="租户名称">
           <a-input
@@ -278,6 +281,7 @@ onMounted(() => {
             allow-clear
             style="width: 180px"
             @press-enter="handleSearch"
+            @input="debouncedSearch"
           />
         </a-form-item>
         <a-form-item label="租户编码">
@@ -287,6 +291,7 @@ onMounted(() => {
             allow-clear
             style="width: 180px"
             @press-enter="handleSearch"
+            @input="debouncedSearch"
           />
         </a-form-item>
         <a-form-item label="租户类型">

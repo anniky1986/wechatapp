@@ -5,6 +5,7 @@ using Agility.Zoey.Data.Repository;
 using Agility.Zoey.Web.Core.Modules.FileManager.Dto;
 using Agility.Zoey.Web.Core.Modules.FileManager.Services.StorageProviders;
 using Agility.Zoey.Web.Core.Modules.System.Dto;
+using Agility.Zoey.Web.Core.Shared.Attributes;
 using Agility.Zoey.Web.Core.Shared.Consts;
 using Furion.DynamicApiController;
 using Furion.FriendlyException;
@@ -34,6 +35,7 @@ public class FileStorageService : IDynamicApiController, ITransient
     }
 
     [HttpPost("api/file/upload")]
+    [Permission(PermissionConsts.FileUpload)]
     public async Task<FileOutput> Upload(IFormFile file, string? category, long? folderId)
     {
         if (file == null || file.Length == 0)
@@ -90,6 +92,7 @@ public class FileStorageService : IDynamicApiController, ITransient
     }
 
     [HttpPost("api/file/multi-upload")]
+    [Permission(PermissionConsts.FileUpload)]
     public async Task<List<FileOutput>> MultiUpload(List<IFormFile> files, string? category, long? folderId)
     {
         var results = new List<FileOutput>();
@@ -102,6 +105,7 @@ public class FileStorageService : IDynamicApiController, ITransient
     }
 
     [HttpGet("api/file/page")]
+    [Permission(PermissionConsts.FileView)]
     public async Task<PageResult<FileOutput>> GetPage(FilePageInput input)
     {
         var tenantId = GetCurrentTenantId();
@@ -150,6 +154,7 @@ public class FileStorageService : IDynamicApiController, ITransient
     }
 
     [HttpGet("api/file/{id}")]
+    [Permission(PermissionConsts.FileView)]
     public async Task<FileOutput> Get(long id)
     {
         var file = await _fileRepo.GetByIdAsync(id);
@@ -165,6 +170,7 @@ public class FileStorageService : IDynamicApiController, ITransient
     }
 
     [HttpGet("api/file/download/{id}")]
+    [Permission(PermissionConsts.FileDownload)]
     public async Task<IActionResult> Download(long id)
     {
         var file = await _fileRepo.GetByIdAsync(id);
@@ -183,6 +189,7 @@ public class FileStorageService : IDynamicApiController, ITransient
     }
 
     [HttpDelete("api/file/{id}")]
+    [Permission(PermissionConsts.FileDelete)]
     public async Task Delete(long id)
     {
         var file = await _fileRepo.GetByIdAsync(id);
@@ -198,6 +205,7 @@ public class FileStorageService : IDynamicApiController, ITransient
     }
 
     [HttpDelete("api/file/batch")]
+    [Permission(PermissionConsts.FileDelete)]
     public async Task BatchDelete(List<long> ids)
     {
         var provider = _serviceProvider.GetRequiredService<LocalFileStorageProvider>();

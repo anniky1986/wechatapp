@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref, shallowRef, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
 import type { TableColumnsType } from 'ant-design-vue'
 import { ExportOutlined, SearchOutlined, ReloadOutlined } from '@ant-design/icons-vue'
 import dayjs from 'dayjs'
 import type { Dayjs } from 'dayjs'
+import { useDebounceFn } from '@vueuse/core'
 import type { PageResult } from '../../../types'
 import {
   getOperationLogPage,
@@ -35,7 +36,7 @@ const pagination = reactive({
 })
 
 const tableData = ref<OperationLogRecord[]>([])
-const tableLoading = ref(false)
+const tableLoading = shallowRef(false)
 
 const httpMethodColorMap: Record<string, string> = {
   GET: 'blue',
@@ -85,6 +86,8 @@ function handleSearch() {
   pagination.current = 1
   fetchData()
 }
+
+const debouncedSearch = useDebounceFn(handleSearch, 300)
 
 function handleReset() {
   searchForm.userName = ''
@@ -141,7 +144,7 @@ onMounted(() => {
 
 <template>
   <div class="operation-log">
-    <a-card class="search-card" :bordered="false">
+    <a-card v-memo="[searchForm.userName, searchForm.module]" class="search-card" :bordered="false">
       <a-form layout="inline" :model="searchForm">
         <a-form-item label="用户名">
           <a-input
@@ -150,6 +153,7 @@ onMounted(() => {
             allow-clear
             style="width: 160px"
             @press-enter="handleSearch"
+            @input="debouncedSearch"
           />
         </a-form-item>
         <a-form-item label="操作模块">
@@ -159,6 +163,7 @@ onMounted(() => {
             allow-clear
             style="width: 160px"
             @press-enter="handleSearch"
+            @input="debouncedSearch"
           />
         </a-form-item>
         <a-form-item label="操作时间">

@@ -1,6 +1,7 @@
 using Agility.Zoey.Core.Entities;
 using Agility.Zoey.Data.Repository;
 using Agility.Zoey.Web.Core.Modules.System.Dto;
+using Agility.Zoey.Web.Core.Shared.Attributes;
 using Agility.Zoey.Web.Core.Shared.Consts;
 using Furion.DynamicApiController;
 using Furion.FriendlyException;
@@ -19,6 +20,7 @@ public class TenantService : IDynamicApiController, ITransient
     }
 
     [HttpGet("api/tenant/page")]
+    [Permission(PermissionConsts.TenantView)]
     public async Task<PageResult<TenantOutput>> GetPage(TenantPageInput input)
     {
         var query = _tenantRepo.AsQueryable();
@@ -75,6 +77,7 @@ public class TenantService : IDynamicApiController, ITransient
     }
 
     [HttpGet("api/tenant/{id}")]
+    [Permission(PermissionConsts.TenantView)]
     public async Task<TenantOutput> Get(long id)
     {
         var tenant = await _tenantRepo.GetByIdAsync(id);
@@ -97,6 +100,7 @@ public class TenantService : IDynamicApiController, ITransient
     }
 
     [HttpPost("api/tenant")]
+    [Permission(PermissionConsts.TenantAdd)]
     public async Task<TenantOutput> Add(AddTenantInput input)
     {
         var exists = await _tenantRepo.AsQueryable()
@@ -123,6 +127,7 @@ public class TenantService : IDynamicApiController, ITransient
     }
 
     [HttpPut("api/tenant/{id}")]
+    [Permission(PermissionConsts.TenantEdit)]
     public async Task<TenantOutput> Update(long id, UpdateTenantInput input)
     {
         var tenant = await _tenantRepo.GetByIdAsync(id);
@@ -152,6 +157,7 @@ public class TenantService : IDynamicApiController, ITransient
     }
 
     [HttpDelete("api/tenant/{id}")]
+    [Permission(PermissionConsts.TenantDelete)]
     public async Task Delete(long id)
     {
         var tenant = await _tenantRepo.GetByIdAsync(id);
@@ -169,6 +175,7 @@ public class TenantService : IDynamicApiController, ITransient
     }
 
     [HttpPut("api/tenant/{id}/status")]
+    [Permission(PermissionConsts.TenantSetStatus)]
     public async Task SetStatus(long id, int status)
     {
         var tenant = await _tenantRepo.GetByIdAsync(id);

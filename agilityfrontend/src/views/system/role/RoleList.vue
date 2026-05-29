@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref, shallowRef, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
 import type { Rule } from 'ant-design-vue/es/form'
 import type { TableColumnsType } from 'ant-design-vue'
@@ -10,6 +10,7 @@ import {
   ApartmentOutlined,
   SafetyCertificateOutlined,
 } from '@ant-design/icons-vue'
+import { useDebounceFn } from '@vueuse/core'
 import { useUserStore } from '../../../store/modules/user'
 import type { MenuItem, PageResult } from '../../../types'
 import {
@@ -86,7 +87,7 @@ const pagination = reactive({
 })
 
 const tableData = ref<RoleRow[]>([])
-const tableLoading = ref(false)
+const tableLoading = shallowRef(false)
 
 const columns: TableColumnsType = [
   { title: '角色名称', dataIndex: 'name', key: 'name', width: 150 },
@@ -119,6 +120,8 @@ function handleSearch() {
   pagination.current = 1
   fetchData()
 }
+
+const debouncedSearch = useDebounceFn(handleSearch, 300)
 
 function handleReset() {
   searchForm.name = ''
@@ -385,7 +388,7 @@ onMounted(() => {
 
 <template>
   <div class="role-list">
-    <a-card class="search-card" :bordered="false">
+    <a-card v-memo="[searchForm.name, searchForm.status]" class="search-card" :bordered="false">
       <a-form layout="inline" :model="searchForm">
         <a-form-item label="角色名称">
           <a-input
@@ -394,6 +397,7 @@ onMounted(() => {
             allow-clear
             style="width: 180px"
             @press-enter="handleSearch"
+            @input="debouncedSearch"
           />
         </a-form-item>
         <a-form-item label="状态">

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, computed, onMounted } from 'vue'
+import { reactive, ref, shallowRef, computed, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
 import type { Rule } from 'ant-design-vue/es/form'
 import type { TableColumnsType } from 'ant-design-vue'
@@ -10,6 +10,7 @@ import {
   DeleteOutlined,
   KeyOutlined,
 } from '@ant-design/icons-vue'
+import { useDebounceFn } from '@vueuse/core'
 import { useUserStore } from '../../../store/modules/user'
 import type { PageResult } from '../../../types'
 import {
@@ -47,10 +48,10 @@ const pagination = reactive({
 })
 
 const tableData = ref<UserRecord[]>([])
-const tableLoading = ref(false)
+const tableLoading = shallowRef(false)
 
-const deptTree = ref<DeptRecord[]>([])
-const roleList = ref<RoleRecord[]>([])
+const deptTree = shallowRef<DeptRecord[]>([])
+const roleList = shallowRef<RoleRecord[]>([])
 
 const statusOptions = [
   { label: '启用', value: 1 },
@@ -95,6 +96,8 @@ function handleSearch() {
   pagination.current = 1
   fetchData()
 }
+
+const debouncedSearch = useDebounceFn(handleSearch, 300)
 
 function handleReset() {
   searchForm.userName = ''
@@ -333,7 +336,7 @@ onMounted(() => {
 <template>
   <div class="user-list">
     <!-- Search Bar -->
-    <a-card class="search-card" :bordered="false">
+    <a-card v-memo="[searchForm.userName, searchForm.phone, searchForm.status, searchForm.deptId]" class="search-card" :bordered="false">
       <a-form layout="inline" :model="searchForm">
         <a-form-item label="用户名">
           <a-input
@@ -342,6 +345,7 @@ onMounted(() => {
             allow-clear
             style="width: 180px"
             @press-enter="handleSearch"
+            @input="debouncedSearch"
           />
         </a-form-item>
         <a-form-item label="手机号">
@@ -351,6 +355,7 @@ onMounted(() => {
             allow-clear
             style="width: 180px"
             @press-enter="handleSearch"
+            @input="debouncedSearch"
           />
         </a-form-item>
         <a-form-item label="状态">

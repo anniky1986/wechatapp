@@ -3,17 +3,17 @@ import type { MenuItem } from '../types'
 import BasicLayout from '../layouts/BasicLayout.vue'
 
 const viewModules: Record<string, () => Promise<unknown>> = {
-  'dashboard/Dashboard': () => import('../views/dashboard/Dashboard.vue'),
-  'system/user/UserList': () => import('../views/system/user/UserList.vue'),
-  'system/role/RoleList': () => import('../views/system/role/RoleList.vue'),
-  'system/menu/MenuList': () => import('../views/system/menu/MenuList.vue'),
-  'system/dept/DeptList': () => import('../views/system/dept/DeptList.vue'),
-  'system/tenant/TenantList': () => import('../views/system/tenant/TenantList.vue'),
-  'system/dict/DictList': () => import('../views/system/dict/DictList.vue'),
-  'system/log/OperationLog': () => import('../views/system/log/OperationLog.vue'),
-  'system/log/LoginLog': () => import('../views/system/log/LoginLog.vue'),
-  'system/setting/SettingPage': () => import('../views/system/setting/SettingPage.vue'),
-  'filemanager/FileManager': () => import('../views/filemanager/FileManager.vue'),
+  'dashboard/Dashboard': () => import(/* webpackChunkName: "dashboard" */ '../views/dashboard/Dashboard.vue'),
+  'system/user/UserList': () => import(/* webpackChunkName: "system-user" */ '../views/system/user/UserList.vue'),
+  'system/role/RoleList': () => import(/* webpackChunkName: "system-role" */ '../views/system/role/RoleList.vue'),
+  'system/menu/MenuList': () => import(/* webpackChunkName: "system-menu" */ '../views/system/menu/MenuList.vue'),
+  'system/dept/DeptList': () => import(/* webpackChunkName: "system-dept" */ '../views/system/dept/DeptList.vue'),
+  'system/tenant/TenantList': () => import(/* webpackChunkName: "system-tenant" */ '../views/system/tenant/TenantList.vue'),
+  'system/dict/DictList': () => import(/* webpackChunkName: "system-dict" */ '../views/system/dict/DictList.vue'),
+  'system/log/OperationLog': () => import(/* webpackChunkName: "system-log" */ '../views/system/log/OperationLog.vue'),
+  'system/log/LoginLog': () => import(/* webpackChunkName: "system-log" */ '../views/system/log/LoginLog.vue'),
+  'system/setting/SettingPage': () => import(/* webpackChunkName: "system-setting" */ '../views/system/setting/SettingPage.vue'),
+  'filemanager/FileManager': () => import(/* webpackChunkName: "filemanager" */ '../views/filemanager/FileManager.vue'),
 }
 
 function menuTypeDirectory(item: MenuItem): boolean {
@@ -99,7 +99,7 @@ export async function generateRoutes(menus: MenuItem[]): Promise<RouteRecordRaw[
         {
           path: '/:pathMatch(.*)*',
           name: 'NotFound',
-          component: () => import('../views/system/error/NotFound.vue'),
+          component: () => import(/* webpackChunkName: "error" */ '../views/system/error/NotFound.vue'),
           meta: { title: '404', hideInMenu: true },
         },
       ],

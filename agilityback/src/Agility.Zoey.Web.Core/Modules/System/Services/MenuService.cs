@@ -2,6 +2,8 @@ using System.Reflection;
 using Agility.Zoey.Core.Entities;
 using Agility.Zoey.Data.Repository;
 using Agility.Zoey.Web.Core.Modules.System.Dto;
+using Agility.Zoey.Web.Core.Shared.Attributes;
+using Agility.Zoey.Web.Core.Shared.Consts;
 using Furion.DynamicApiController;
 using Furion.FriendlyException;
 
@@ -18,6 +20,7 @@ public class MenuService : IDynamicApiController, ITransient
     }
 
     [HttpGet("api/menu/tree")]
+    [Permission(PermissionConsts.MenuView)]
     public async Task<List<MenuTreeOutput>> GetTree()
     {
         var menus = await _menuRepo.AsQueryable()
@@ -29,6 +32,7 @@ public class MenuService : IDynamicApiController, ITransient
     }
 
     [HttpGet("api/menu/routes")]
+    [Permission(PermissionConsts.MenuView)]
     public async Task<List<MenuTreeOutput>> GetRoutes()
     {
         var menus = await _menuRepo.AsQueryable()
@@ -40,6 +44,7 @@ public class MenuService : IDynamicApiController, ITransient
     }
 
     [HttpGet("api/menu/{id}")]
+    [Permission(PermissionConsts.MenuView)]
     public async Task<MenuOutput> Get(long id)
     {
         var menu = await _menuRepo.GetByIdAsync(id);
@@ -70,6 +75,7 @@ public class MenuService : IDynamicApiController, ITransient
     }
 
     [HttpPost("api/menu")]
+    [Permission(PermissionConsts.MenuAdd)]
     public async Task<MenuOutput> Add(AddMenuInput input)
     {
         var menu = new Menu
@@ -98,6 +104,7 @@ public class MenuService : IDynamicApiController, ITransient
     }
 
     [HttpPut("api/menu/{id}")]
+    [Permission(PermissionConsts.MenuEdit)]
     public async Task<MenuOutput> Update(long id, UpdateMenuInput input)
     {
         var menu = await _menuRepo.GetByIdAsync(id);
@@ -133,6 +140,7 @@ public class MenuService : IDynamicApiController, ITransient
     }
 
     [HttpDelete("api/menu/{id}")]
+    [Permission(PermissionConsts.MenuDelete)]
     public async Task Delete(long id)
     {
         var menu = await _menuRepo.GetByIdAsync(id);
@@ -154,6 +162,7 @@ public class MenuService : IDynamicApiController, ITransient
     }
 
     [HttpPut("api/menu/{id}/status")]
+    [Permission(PermissionConsts.MenuSetStatus)]
     public async Task SetStatus(long id, int status)
     {
         var menu = await _menuRepo.GetByIdAsync(id);
@@ -168,6 +177,7 @@ public class MenuService : IDynamicApiController, ITransient
     }
 
     [HttpPost("api/menu/sync")]
+    [Permission(PermissionConsts.MenuSync)]
     public async Task<int> SyncPermissions()
     {
         var assembly = Assembly.GetExecutingAssembly();

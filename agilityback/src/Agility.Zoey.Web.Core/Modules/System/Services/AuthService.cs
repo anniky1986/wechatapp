@@ -5,11 +5,11 @@ using Agility.Zoey.Core.Entities;
 using Agility.Zoey.Core.Enums;
 using Agility.Zoey.Data.Repository;
 using Agility.Zoey.Web.Core.Modules.System.Dto;
+using Agility.Zoey.Web.Core.Shared.Services;
 using Furion;
 using Furion.DynamicApiController;
 using Furion.FriendlyException;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 
 namespace Agility.Zoey.Web.Core.Modules.System.Services;
@@ -27,7 +27,7 @@ public class AuthService : IDynamicApiController, ITransient
     private readonly IRepository<SystemSetting> _settingRepo;
     private readonly IRepository<DictItem> _dictItemRepo;
     private readonly IRepository<Dict> _dictRepo;
-    private readonly IMemoryCache _cache;
+    private readonly CacheService _cache;
     private readonly IConfiguration _configuration;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -42,7 +42,7 @@ public class AuthService : IDynamicApiController, ITransient
         IRepository<SystemSetting> settingRepo,
         IRepository<DictItem> dictItemRepo,
         IRepository<Dict> dictRepo,
-        IMemoryCache cache,
+        CacheService cache,
         IConfiguration configuration,
         IHttpContextAccessor httpContextAccessor)
     {
@@ -99,6 +99,12 @@ public class AuthService : IDynamicApiController, ITransient
             await _userRepo.UpdateAsync(user);
             await RecordLoginLog(user.Id, user.UserName, 0, "密码错误", LoginType.Password);
             throw Oops.Oh("用户名或密码错误");
+        }
+
+        if (user.PasswordExpireTime.HasValue && user.PasswordExpireTime.Value < DateTime.Now)
+        {
+            await RecordLoginLog(user.Id, user.UserName, 0, "密码已过期", LoginType.Password);
+            throw Oops.Oh("密码已过期，请修改密码后重新登录");
         }
 
         user.LoginFailCount = 0;

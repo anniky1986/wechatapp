@@ -1,6 +1,7 @@
 using Agility.Zoey.Core.Entities;
 using Agility.Zoey.Data.Repository;
 using Agility.Zoey.Web.Core.Modules.System.Dto;
+using Agility.Zoey.Web.Core.Shared.Attributes;
 using Agility.Zoey.Web.Core.Shared.Consts;
 using Furion.DynamicApiController;
 using Furion.FriendlyException;
@@ -28,6 +29,7 @@ public class RoleService : IDynamicApiController, ITransient
     }
 
     [HttpGet("api/role/page")]
+    [Permission(PermissionConsts.RoleView)]
     public async Task<PageResult<RoleOutput>> GetPage(RolePageInput input)
     {
         var query = _roleRepo.AsQueryable();
@@ -93,6 +95,7 @@ public class RoleService : IDynamicApiController, ITransient
     }
 
     [HttpGet("api/role/list")]
+    [Permission(PermissionConsts.RoleView)]
     public async Task<List<RoleOutput>> GetList()
     {
         var roles = await _roleRepo.AsQueryable()
@@ -114,6 +117,7 @@ public class RoleService : IDynamicApiController, ITransient
     }
 
     [HttpGet("api/role/{id}")]
+    [Permission(PermissionConsts.RoleView)]
     public async Task<RoleOutput> Get(long id)
     {
         var role = await _roleRepo.GetByIdAsync(id);
@@ -142,6 +146,7 @@ public class RoleService : IDynamicApiController, ITransient
     }
 
     [HttpPost("api/role")]
+    [Permission(PermissionConsts.RoleAdd)]
     public async Task<RoleOutput> Add(AddRoleInput input)
     {
         var exists = await _roleRepo.AsQueryable()
@@ -175,6 +180,7 @@ public class RoleService : IDynamicApiController, ITransient
     }
 
     [HttpPut("api/role/{id}")]
+    [Permission(PermissionConsts.RoleEdit)]
     public async Task<RoleOutput> Update(long id, UpdateRoleInput input)
     {
         var role = await _roleRepo.GetByIdAsync(id);
@@ -211,6 +217,7 @@ public class RoleService : IDynamicApiController, ITransient
     }
 
     [HttpDelete("api/role/{id}")]
+    [Permission(PermissionConsts.RoleDelete)]
     public async Task Delete(long id)
     {
         var role = await _roleRepo.GetByIdAsync(id);
@@ -230,6 +237,7 @@ public class RoleService : IDynamicApiController, ITransient
     }
 
     [HttpPut("api/role/{id}/status")]
+    [Permission(PermissionConsts.RoleSetStatus)]
     public async Task SetStatus(long id, int status)
     {
         var role = await _roleRepo.GetByIdAsync(id);
@@ -249,6 +257,7 @@ public class RoleService : IDynamicApiController, ITransient
     }
 
     [HttpPut("api/role/{id}/menu")]
+    [Permission(PermissionConsts.RoleSetMenu)]
     public async Task SetRoleMenus(long id, List<long> menuIds)
     {
         var role = await _roleRepo.GetByIdAsync(id);
@@ -265,6 +274,7 @@ public class RoleService : IDynamicApiController, ITransient
     }
 
     [HttpPut("api/role/{id}/data-permission")]
+    [Permission(PermissionConsts.RoleSetDataPermission)]
     public async Task SetDataPermission(long id, DataPermissionInput input)
     {
         var role = await _roleRepo.GetByIdAsync(id);

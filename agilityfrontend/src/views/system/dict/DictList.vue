@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, onMounted, watch } from 'vue'
+import { reactive, ref, shallowRef, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
 import type { Rule } from 'ant-design-vue/es/form'
 import type { TableColumnsType } from 'ant-design-vue'
@@ -8,6 +8,7 @@ import {
   EditOutlined,
   DeleteOutlined,
 } from '@ant-design/icons-vue'
+import { useDebounceFn } from '@vueuse/core'
 import { useUserStore } from '../../../store/modules/user'
 import type { PageResult } from '../../../types'
 import type {
@@ -61,7 +62,7 @@ const typePagination = reactive({
 })
 
 const typeTableData = ref<DictTypeRecord[]>([])
-const typeTableLoading = ref(false)
+const typeTableLoading = shallowRef(false)
 
 const typeColumns: TableColumnsType = [
   { title: '字典名称', dataIndex: 'name', key: 'name', width: 120 },
@@ -81,7 +82,7 @@ const itemPagination = reactive({
 })
 
 const itemTableData = ref<DictItemRow[]>([])
-const itemTableLoading = ref(false)
+const itemTableLoading = shallowRef(false)
 
 const itemColumns: TableColumnsType = [
   { title: '字典标签', dataIndex: 'label', key: 'label', width: 140 },
@@ -139,6 +140,8 @@ function handleTypeSearch() {
   typePagination.current = 1
   fetchTypeData()
 }
+
+const debouncedTypeSearch = useDebounceFn(handleTypeSearch, 300)
 
 function handleTypePageChange(page: number, pageSize: number) {
   typePagination.current = page
@@ -392,6 +395,7 @@ onMounted(() => {
               placeholder="搜索字典名称"
               allow-clear
               @search="handleTypeSearch"
+              @input="debouncedTypeSearch"
             />
           </div>
 

@@ -1,9 +1,11 @@
 using Agility.Zoey.Core.Entities;
 using Agility.Zoey.Data.Repository;
 using Agility.Zoey.Web.Core.Modules.System.Dto;
+using Agility.Zoey.Web.Core.Shared.Attributes;
+using Agility.Zoey.Web.Core.Shared.Consts;
+using Agility.Zoey.Web.Core.Shared.Services;
 using Furion.DynamicApiController;
 using Furion.FriendlyException;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace Agility.Zoey.Web.Core.Modules.System.Services;
 
@@ -11,15 +13,16 @@ namespace Agility.Zoey.Web.Core.Modules.System.Services;
 public class SettingService : IDynamicApiController, ITransient
 {
     private readonly IRepository<SystemSetting> _settingRepo;
-    private readonly IMemoryCache _cache;
+    private readonly CacheService _cache;
 
-    public SettingService(IRepository<SystemSetting> settingRepo, IMemoryCache cache)
+    public SettingService(IRepository<SystemSetting> settingRepo, CacheService cache)
     {
         _settingRepo = settingRepo;
         _cache = cache;
     }
 
     [HttpGet("api/setting/group/{group}")]
+    [Permission(PermissionConsts.SettingView)]
     public async Task<List<SettingOutput>> GetByGroup(string group)
     {
         var settings = await _settingRepo.AsQueryable()
@@ -41,6 +44,7 @@ public class SettingService : IDynamicApiController, ITransient
     }
 
     [HttpGet("api/setting/all")]
+    [Permission(PermissionConsts.SettingView)]
     public async Task<List<SettingOutput>> GetAll()
     {
         var settings = await _settingRepo.AsQueryable()
@@ -62,6 +66,7 @@ public class SettingService : IDynamicApiController, ITransient
     }
 
     [HttpPut("api/setting")]
+    [Permission(PermissionConsts.SettingUpdate)]
     public async Task Update(List<UpdateSettingInput> inputs)
     {
         foreach (var input in inputs)
@@ -83,6 +88,7 @@ public class SettingService : IDynamicApiController, ITransient
     }
 
     [HttpGet("api/setting/cache/reload")]
+    [Permission(PermissionConsts.SettingUpdate)]
     public async Task<string> ReloadCache()
     {
         _cache.Remove("system:settings");

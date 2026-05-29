@@ -20,6 +20,7 @@ public static class SeedDataInitializer
         await SeedUserRoleAsync(client, adminUser.Id, superAdminRole.Id);
         await SeedMenusAsync(client, tenant.Id);
         await SeedSystemSettingsAsync(client, tenant.Id);
+        await EnsureArticleTableAsync(client);
     }
 
     private static async Task<Tenant> SeedTenantAsync(SqlSugarScope client)
@@ -531,6 +532,12 @@ public static class SeedDataInitializer
         };
 
         await client.Insertable(settings).ExecuteCommandAsync();
+    }
+
+    private static async Task EnsureArticleTableAsync(SqlSugarScope client)
+    {
+        client.CodeFirst.InitTables(typeof(Article));
+        await Task.CompletedTask;
     }
 
     private static string Md5Hash(string input)
